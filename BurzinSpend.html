@@ -186,6 +186,7 @@ body.travel-mode .btn-cat-drag { color: var(--travel-blue); }
 .numpad-key { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius-md); padding: 14px 0; font-family: var(--serif); font-size: 20px; color: var(--ink-1); text-align: center; cursor: pointer; transition: background 0.12s, transform 0.08s; user-select: none; }
 .numpad-key:active { background: var(--white); transform: scale(0.95); }
 .numpad-key.np-fn { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.numpad-key.np-back { display: flex; align-items: center; justify-content: center; color: var(--ink-1); }
 
 /* CATEGORY ICON GRID */
 .cat-icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -656,7 +657,7 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
   <div class="scroll-area">
 
     <!-- ══ OVERVIEW ══ -->
-    <div id="budgetTab">
+    <div id="budgetTab" class="hidden">
       <div class="hero-card">
         <div class="hero-label">Remaining this month</div>
         <div class="hero-amount" id="heroAmount"><span class="currency">$</span><span id="balance">0.00</span></div>
@@ -711,7 +712,64 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
     </div>
 
     <!-- ══ ADD / EDIT ══ -->
-    <div id="expenseTab" class="hidden">
+    <div id="expenseTab">
+      <div class="card">
+        <div class="card-label-row">
+          <div class="card-label" style="margin-bottom:0;">New Expense</div>
+          <div class="btn-circle" id="onTripTag" onclick="toggleOnTripTag()" title="On a trip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1 0-1.3.4l-.7.7c-.4.4-.3 1.1.2 1.4L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.1 6c.3.5 1 .6 1.4.2l.7-.7c.4-.3.5-.8.4-1.3z"/></svg>
+          </div>
+        </div>
+
+        <div class="numpad-display">
+          <div class="np-amt"><span class="np-currency">$</span><span id="npAmt">0</span></div>
+        </div>
+        <div class="numpad-grid" style="margin-bottom:14px;">
+          <div class="numpad-key" onclick="npDigit('1')">1</div>
+          <div class="numpad-key" onclick="npDigit('2')">2</div>
+          <div class="numpad-key" onclick="npDigit('3')">3</div>
+          <div class="numpad-key" onclick="npDigit('4')">4</div>
+          <div class="numpad-key" onclick="npDigit('5')">5</div>
+          <div class="numpad-key" onclick="npDigit('6')">6</div>
+          <div class="numpad-key" onclick="npDigit('7')">7</div>
+          <div class="numpad-key" onclick="npDigit('8')">8</div>
+          <div class="numpad-key" onclick="npDigit('9')">9</div>
+          <div class="numpad-key np-fn" onclick="npDecimal()">.</div>
+          <div class="numpad-key" onclick="npDigit('0')">0</div>
+          <div class="numpad-key np-back" onclick="npBackspace()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H8l-6 7 6 7h13a1 1 0 001-1V6a1 1 0 00-1-1z"/><line x1="18" y1="10" x2="12" y2="16"/><line x1="12" y1="10" x2="18" y2="16"/></svg>
+          </div>
+        </div>
+
+        <div class="form-fields">
+          <div class="field"><div class="field-lbl">Description (optional)</div><input id="label" type="text" placeholder="Uber, Trader Joe's…"></div>
+          <div class="field">
+            <div class="field-lbl" style="position:static;margin-bottom:6px;">Category</div>
+            <div class="cat-icon-grid" id="categoryIconGrid"></div>
+          </div>
+          <div class="field hidden" id="tripPickerWrap">
+            <div class="field-lbl">Which Trip</div>
+            <select id="tripPickerSelect"></select>
+          </div>
+        </div>
+        <button class="btn-add" onclick="addExpense()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Log Expense
+        </button>
+        <button class="btn-export" style="margin-top:8px;" onclick="saveCurrentAsPreset()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg>
+          Save as Quick Add
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="quickadd-label-row">
+          <div class="card-label" style="margin-bottom:0;">Quick Add</div>
+          <div class="quickadd-edit-toggle" id="qaEditToggle" onclick="toggleQuickAddEdit()">Edit</div>
+        </div>
+        <div class="quickadd-wrap" id="quickAddList"></div>
+      </div>
+
       <div class="card">
         <div class="card-label-row">
           <div class="card-label" style="margin-bottom:0;">Voice Add</div>
@@ -742,61 +800,6 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
         </div>
         <input id="statementFileInput" type="file" accept="application/pdf" style="display:none;" onchange="handleStatementUpload(event)">
         <div id="importStatusMsg" class="import-status hidden"></div>
-      </div>
-
-      <div class="card">
-        <div class="quickadd-label-row">
-          <div class="card-label" style="margin-bottom:0;">Quick Add</div>
-          <div class="quickadd-edit-toggle" id="qaEditToggle" onclick="toggleQuickAddEdit()">Edit</div>
-        </div>
-        <div class="quickadd-wrap" id="quickAddList"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-label-row">
-          <div class="card-label" style="margin-bottom:0;">New Expense</div>
-          <div class="btn-circle" id="onTripTag" onclick="toggleOnTripTag()" title="On a trip">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1 0-1.3.4l-.7.7c-.4.4-.3 1.1.2 1.4L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.1 6c.3.5 1 .6 1.4.2l.7-.7c.4-.3.5-.8.4-1.3z"/></svg>
-          </div>
-        </div>
-
-        <div class="numpad-display">
-          <div class="np-amt"><span class="np-currency">$</span><span id="npAmt">0</span></div>
-        </div>
-        <div class="numpad-grid" style="margin-bottom:14px;">
-          <div class="numpad-key" onclick="npDigit('1')">1</div>
-          <div class="numpad-key" onclick="npDigit('2')">2</div>
-          <div class="numpad-key" onclick="npDigit('3')">3</div>
-          <div class="numpad-key" onclick="npDigit('4')">4</div>
-          <div class="numpad-key" onclick="npDigit('5')">5</div>
-          <div class="numpad-key" onclick="npDigit('6')">6</div>
-          <div class="numpad-key" onclick="npDigit('7')">7</div>
-          <div class="numpad-key" onclick="npDigit('8')">8</div>
-          <div class="numpad-key" onclick="npDigit('9')">9</div>
-          <div class="numpad-key np-fn" onclick="npDecimal()">.</div>
-          <div class="numpad-key" onclick="npDigit('0')">0</div>
-          <div class="numpad-key np-fn" onclick="npBackspace()">⌫</div>
-        </div>
-
-        <div class="form-fields">
-          <div class="field"><div class="field-lbl">Description (optional)</div><input id="label" type="text" placeholder="Uber, Trader Joe's…"></div>
-          <div class="field">
-            <div class="field-lbl" style="position:static;margin-bottom:6px;">Category</div>
-            <div class="cat-icon-grid" id="categoryIconGrid"></div>
-          </div>
-          <div class="field hidden" id="tripPickerWrap">
-            <div class="field-lbl">Which Trip</div>
-            <select id="tripPickerSelect"></select>
-          </div>
-        </div>
-        <button class="btn-add" onclick="addExpense()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Log Expense
-        </button>
-        <button class="btn-export" style="margin-top:8px;" onclick="saveCurrentAsPreset()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg>
-          Save as Quick Add
-        </button>
       </div>
 
       <div class="card">
@@ -850,13 +853,13 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
   </div>
 
   <div class="tabbar">
-    <button class="tab-btn active" id="budgetBtn" onclick="switchTab('budget')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      <span>Overview</span>
-    </button>
-    <button class="tab-btn" id="expenseBtn" onclick="switchTab('expense')">
+    <button class="tab-btn active" id="expenseBtn" onclick="switchTab('expense')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Add</span>
+    </button>
+    <button class="tab-btn" id="budgetBtn" onclick="switchTab('budget')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span>Overview</span>
     </button>
     <button class="tab-btn" id="compareBtn" onclick="switchTab('compare')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
@@ -867,6 +870,7 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
       <span>Categories</span>
     </button>
   </div>
+
   </div><!-- /spendApp -->
 
   <!-- ══════════════ ANISHTRAVEL ══════════════ -->
@@ -935,6 +939,7 @@ body.travel-mode .identity-eyebrow { color: var(--travel-blue); }
                 <option value="flight">Flight</option>
                 <option value="stay">Stay / Hotel</option>
                 <option value="car">Car Rental</option>
+                <option value="other">Food / Activities / Other</option>
               </select>
             </div>
             <div class="field"><div class="field-lbl">Description</div><input id="tripItemLabel" type="text" placeholder="Marriott Downtown, Hertz…"></div>
@@ -2960,6 +2965,7 @@ function renderTripList() {
     const hasCar = (trip.items||[]).some(i => i.type === "car");
     const hasStay = (trip.items||[]).some(i => i.type === "stay");
     const hasFlight = (trip.items||[]).some(i => i.type === "flight");
+    const hasOther = (trip.items||[]).some(i => i.type === "other");
     return `<div class="trip-card" onclick="openTripDetail('${trip.id}')">
       <div class="trip-card-top">
         <div>
@@ -2979,6 +2985,7 @@ function renderTripList() {
         ${hasFlight ? `<div class="trip-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1 0-1.3.4l-.7.7c-.4.4-.3 1.1.2 1.4L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.1 6c.3.5 1 .6 1.4.2l.7-.7c.4-.3.5-.8.4-1.3z"/></svg>Flight</div>` : ""}
         ${hasStay ? `<div class="trip-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-9M12 13c0-4 3-7 7-7-1 4-4 6-7 7zM12 13c0-4-3-7-7-7 1 4 4 6 7 7z"/></svg>Stay</div>` : ""}
         ${hasCar ? `<div class="trip-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a1 1 0 001 1h1m14-7a2 2 0 012 2v4a1 1 0 01-1 1h-1M7 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>Car</div>` : ""}
+        ${hasOther ? `<div class="trip-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>Other</div>` : ""}
       </div>
     </div>`;
   }).join("");
@@ -3256,7 +3263,8 @@ function renderTripDetail() {
     const icons = {
       flight: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-1 0-1.3.4l-.7.7c-.4.4-.3 1.1.2 1.4L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.1 6c.3.5 1 .6 1.4.2l.7-.7c.4-.3.5-.8.4-1.3z"/></svg>`,
       stay: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-9M12 13c0-4 3-7 7-7-1 4-4 6-7 7zM12 13c0-4-3-7-7-7 1 4 4 6 7 7z"/></svg>`,
-      car: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a1 1 0 001 1h1m14-7a2 2 0 012 2v4a1 1 0 01-1 1h-1M7 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>`
+      car: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a1 1 0 001 1h1m14-7a2 2 0 012 2v4a1 1 0 01-1 1h-1M7 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>`,
+      other: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`
     };
     const sortedItems = [...items].sort((a,b) => (a.start||"").localeCompare(b.start||""));
     listEl.innerHTML = sortedItems.map(i => {
@@ -3983,32 +3991,59 @@ function showVoiceStatus(msg, type) {
 // stripped so "please add $12 for lunch" and "$12 for lunch" parse the same.
 const VOICE_LEADIN_RE = /^(please\s+|can you\s+|could you\s+)?(add|log|record|enter|put in|track|i spent|i paid|spent|paid)\s+/i;
 
-function parseVoiceTranscript(text) {
-  const clean = text.trim();
-  // Split on "and"/commas/semicolons so one sentence can log several expenses
-  // at once — this is the whole point of voice entry being faster than typing.
-  const chunks = clean.split(/\s*(?:,|;|\band\b)\s*/i).map(c => c.trim()).filter(Boolean);
-  const results = [];
-  chunks.forEach(chunk => {
-    let c = chunk.replace(VOICE_LEADIN_RE, "").trim();
-    const amtMatch = c.match(/\$?\s*(\d+(?:\.\d{1,2})?)\s*(dollars?|bucks?)?/i);
-    if (!amtMatch) return; // no number found in this chunk — skip it rather than guess
-    const amount = parseFloat(amtMatch[1]);
-    if (!amount) return;
+// Lets "twelve dollars for lunch" work the same as "12 dollars for lunch" —
+// several speech engines (especially on-device ones) spell numbers out
+// instead of using digits.
+const NUMBER_WORDS = { zero:0, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9,
+  ten:10, eleven:11, twelve:12, thirteen:13, fourteen:14, fifteen:15, sixteen:16, seventeen:17,
+  eighteen:18, nineteen:19, twenty:20, thirty:30, forty:40, fifty:50, sixty:60, seventy:70, eighty:80,
+  ninety:90, hundred:100 };
+function convertNumberWordsToDigits(text) {
+  const wordRun = /\b((?:(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)\s*(?:and\s+)?)+)\b/gi;
+  return text.replace(wordRun, (match) => {
+    const tokens = match.trim().split(/\s+/).filter(t => t.toLowerCase() !== "and");
+    let current = 0;
+    tokens.forEach(tok => {
+      const val = NUMBER_WORDS[tok.toLowerCase()];
+      if (val === undefined) return;
+      current = (val === 100) ? (current || 1) * 100 : current + val;
+    });
+    return String(current);
+  });
+}
 
-    let desc = "";
-    const forMatch = c.match(/(?:for|on)\s+(.+)$/i);
-    if (forMatch) {
-      desc = forMatch[1];
-    } else {
-      desc = (c.slice(0, amtMatch.index) + c.slice(amtMatch.index + amtMatch[0].length)).trim();
-    }
-    desc = desc.replace(/\b(dollars?|bucks?)\b/gi, "").replace(/^(a|an|the)\s+/i, "").trim();
+// Splits on every NEW dollar amount it finds, rather than on connector words
+// like "and" or commas — real speech (and some transcription engines) often
+// drops those between items entirely, which used to collapse everything
+// after the first amount into one garbled entry.
+function parseVoiceTranscript(text) {
+  let clean = text.trim().replace(VOICE_LEADIN_RE, "").trim();
+  clean = convertNumberWordsToDigits(clean);
+
+  const amtRe = /\$?\s*(\d+(?:\.\d{1,2})?)\s*(dollars?|bucks?)?/gi;
+  const matches = [...clean.matchAll(amtRe)];
+  if (!matches.length) return [];
+
+  const results = [];
+  for (let i = 0; i < matches.length; i++) {
+    const m = matches[i];
+    const amount = parseFloat(m[1]);
+    if (!amount) continue;
+
+    const start = m.index + m[0].length;
+    const end   = (i + 1 < matches.length) ? matches[i + 1].index : clean.length;
+    let desc = clean.slice(start, end);
+
+    desc = desc.replace(/^\s*[,;]?\s*(and|then|also)?\s*/i, "");
+    const forMatch = desc.match(/^\s*(?:for|on)\s+(.+)$/i);
+    if (forMatch) desc = forMatch[1];
+    desc = desc.replace(/\s*(,|;|\band\b|\bthen\b|\balso\b)\s*$/i, "").trim();
+    desc = desc.replace(/^(a|an|the)\s+/i, "").replace(/\b(dollars?|bucks?)\b/gi, "").trim();
     if (!desc) desc = "Expense";
     desc = desc.charAt(0).toUpperCase() + desc.slice(1);
 
     results.push({ date: new Date().toISOString().slice(0,10), desc, amount, category: guessCategory(desc), include: true });
-  });
+  }
   return results;
 }
 
